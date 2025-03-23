@@ -22,6 +22,9 @@ interface TechIcon {
   icon: React.ReactNode;
   color: string;
   position: [number, number, number];
+  // Add properties that were missing
+  element?: HTMLDivElement;
+  position3D?: THREE.Vector3;
 }
 
 const TechGlobe: React.FC = () => {
@@ -67,68 +70,89 @@ const TechGlobe: React.FC = () => {
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(globeRef.current.clientWidth, globeRef.current.clientHeight);
     renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(window.devicePixelRatio);
     globeRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Create the globe geometry
-    const globeGeometry = new THREE.SphereGeometry(1, 64, 64);
-    
-    // Create a custom shader material for the globe
-    const globeMaterial = new THREE.ShaderMaterial({
+    // Create a more realistic globe texture
+    const textureLoader = new THREE.TextureLoader();
+    const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
+    const earthBumpMap = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_normal_2048.jpg');
+    const earthSpecMap = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_specular_2048.jpg');
+    const cloudsTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_clouds_1024.png');
+
+    // Create Earth globe
+    const earthGeometry = new THREE.SphereGeometry(0.9, 64, 64);
+    const earthMaterial = new THREE.MeshPhongMaterial({
+      map: earthTexture,
+      bumpMap: earthBumpMap,
+      bumpScale: 0.05,
+      specularMap: earthSpecMap,
+      specular: new THREE.Color('grey'),
+      shininess: 10,
+      transparent: true,
+      opacity: 0.9
+    });
+    const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earthMesh);
+
+    // Add clouds layer
+    const cloudsGeometry = new THREE.SphereGeometry(0.93, 64, 64);
+    const cloudsMaterial = new THREE.MeshPhongMaterial({
+      map: cloudsTexture,
+      transparent: true,
+      opacity: 0.4
+    });
+    const cloudsMesh = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+    scene.add(cloudsMesh);
+
+    // Add atmosphere glow
+    const atmosphereGeometry = new THREE.SphereGeometry(0.95, 64, 64);
+    const atmosphereMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        time: { value: 0 },
-        baseColor: { value: new THREE.Color(0x2563eb) },  // Royal blue accent
-        glowColor: { value: new THREE.Color(0x4f46e5) }   // Slightly different color for glow
+        glowColor: { value: new THREE.Color(0x0066ff) },
+        viewVector: { value: new THREE.Vector3(0, 0, 1) }
       },
       vertexShader: `
-        varying vec3 vNormal;
-        varying vec2 vUv;
-        
+        uniform vec3 viewVector;
+        varying float intensity;
         void main() {
-          vNormal = normalize(normalMatrix * normal);
-          vUv = uv;
+          vec3 vNormal = normalize(normalMatrix * normal);
+          vec3 vNormel = normalize(normalMatrix * viewVector);
+          intensity = pow(0.7 - dot(vNormal, vNormel), 2.0);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
       fragmentShader: `
-        uniform float time;
-        uniform vec3 baseColor;
         uniform vec3 glowColor;
-        varying vec3 vNormal;
-        varying vec2 vUv;
-        
+        varying float intensity;
         void main() {
-          // Create a grid pattern
-          float grid = 0.05;
-          vec2 wrap = fract(vUv * 15.0);
-          float gridX = smoothstep(grid, 0.0, wrap.x) + smoothstep(1.0 - grid, 1.0, wrap.x);
-          float gridY = smoothstep(grid, 0.0, wrap.y) + smoothstep(1.0 - grid, 1.0, wrap.y);
-          float gridFactor = clamp(gridX + gridY, 0.0, 1.0) * 0.35;
-          
-          // Edge glow
-          float edgeFactor = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
-          
-          // Combine edge glow with grid
-          vec3 color = mix(baseColor * 0.4, glowColor, edgeFactor + gridFactor);
-          
-          // Pulse animation
-          float pulse = sin(time * 0.5) * 0.1 + 0.2;
-          float alpha = edgeFactor * 0.7 + gridFactor + pulse;
-          
-          gl_FragColor = vec4(color, clamp(alpha, 0.1, 0.95));
+          vec3 glow = glowColor * intensity;
+          gl_FragColor = vec4(glow, intensity * 0.4);
         }
       `,
-      transparent: true,
-      side: THREE.FrontSide
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true
     });
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    atmosphere.scale.set(1.1, 1.1, 1.1);
+    scene.add(atmosphere);
 
-    const globe = new THREE.Mesh(globeGeometry, globeMaterial);
-    scene.add(globe);
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0x333333);
+    scene.add(ambientLight);
+
+    // Add directional light (sunlight)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 3, 5);
+    scene.add(directionalLight);
 
     // Position the 2D technology icons around the 3D globe
     techIcons.forEach((tech, index) => {
       const iconPos = new THREE.Vector3(tech.position[0], tech.position[1], tech.position[2]);
       iconPos.normalize().multiplyScalar(1.2); // Position slightly outside the globe
+      tech.position3D = iconPos;
       
       if (iconsContainerRef.current) {
         const iconElement = document.createElement('div');
@@ -144,10 +168,7 @@ const TechGlobe: React.FC = () => {
           </div>
         `;
         iconsContainerRef.current.appendChild(iconElement);
-        
-        // Store the element in a data attribute for animation
         tech.element = iconElement;
-        tech.position3D = iconPos;
       }
     });
 
@@ -162,19 +183,29 @@ const TechGlobe: React.FC = () => {
     let currentRotationY = 0;
 
     const animate = () => {
-      if (!globeMaterial.uniforms) return;
+      // Update Earth rotation
+      earthMesh.rotation.y += rotationSpeed;
       
-      // Update shader time uniform
-      globeMaterial.uniforms.time.value += 0.01;
+      // Update clouds rotation (slightly slower)
+      cloudsMesh.rotation.y += rotationSpeed * 0.8;
       
-      // Smooth rotation
+      // Smooth rotation from mouse interaction
       currentRotationX += (targetRotationX - currentRotationX) * 0.05;
       currentRotationY += (targetRotationY - currentRotationY) * 0.05;
       
-      // Apply rotation to the globe
-      globe.rotation.y += rotationSpeed;
-      globe.rotation.x = currentRotationY * 0.3;
-      globe.rotation.z = currentRotationX * 0.3;
+      // Apply tilt based on mouse position
+      earthMesh.rotation.x = currentRotationY * 0.3;
+      earthMesh.rotation.z = currentRotationX * 0.3;
+      cloudsMesh.rotation.x = currentRotationY * 0.3;
+      cloudsMesh.rotation.z = currentRotationX * 0.3;
+      
+      // Update atmosphere glow
+      if (atmosphereMaterial.uniforms) {
+        atmosphereMaterial.uniforms.viewVector.value = new THREE.Vector3().subVectors(
+          camera.position,
+          earthMesh.position
+        );
+      }
       
       // Update the positions of the 2D icons based on the 3D positions
       techIcons.forEach((tech) => {
@@ -183,17 +214,17 @@ const TechGlobe: React.FC = () => {
           const position = tech.position3D.clone();
           
           // Apply the same rotation as the globe
-          position.applyAxisAngle(new THREE.Vector3(0, 1, 0), globe.rotation.y);
-          position.applyAxisAngle(new THREE.Vector3(1, 0, 0), globe.rotation.x);
-          position.applyAxisAngle(new THREE.Vector3(0, 0, 1), globe.rotation.z);
+          position.applyAxisAngle(new THREE.Vector3(0, 1, 0), earthMesh.rotation.y);
+          position.applyAxisAngle(new THREE.Vector3(1, 0, 0), earthMesh.rotation.x);
+          position.applyAxisAngle(new THREE.Vector3(0, 0, 1), earthMesh.rotation.z);
           
           // Project 3D position to 2D screen space
           const screenPosition = position.clone();
           screenPosition.project(camera);
           
           // Convert to CSS coordinates
-          const x = (screenPosition.x * 0.5 + 0.5) * globeRef.current.clientWidth;
-          const y = (-(screenPosition.y * 0.5) + 0.5) * globeRef.current.clientHeight;
+          const x = (screenPosition.x * 0.5 + 0.5) * globeRef.current!.clientWidth;
+          const y = (-(screenPosition.y * 0.5) + 0.5) * globeRef.current!.clientHeight;
           
           // Check if icon is on the front side of the globe
           const isFront = position.z > 0;
@@ -215,6 +246,8 @@ const TechGlobe: React.FC = () => {
 
     // Add interaction
     const handleMouseMove = (event: MouseEvent) => {
+      if (!containerRef.current) return;
+      
       const rect = containerRef.current.getBoundingClientRect();
       mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouseY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
@@ -264,23 +297,39 @@ const TechGlobe: React.FC = () => {
 
   // Helper function to convert React elements to strings
   function renderToString(element: React.ReactNode): string {
-    const tempDiv = document.createElement('div');
-    const reactEl = React.isValidElement(element) ? element : <>{element}</>;
+    if (!React.isValidElement(element)) {
+      return '';
+    }
     
     // A simple mapping of Lucide icons to SVG strings
-    const iconName = reactEl.type?.displayName || '';
+    const iconName = element.type.displayName || '';
     switch (iconName) {
       case 'Code':
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
       case 'Box':
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>';
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>';
       case 'FileJson':
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"></path><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"></path></svg>';
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"></path><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"></path></svg>';
       case 'Database':
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>';
-      // Add more icons as needed
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>';
+      case 'Layers':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>';
+      case 'GanttChart':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h10"></path><path d="M6 12h9"></path><path d="M11 18h7"></path></svg>';
+      case 'CircuitBoard':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M11 9h4a2 2 0 0 0 2-2V3"></path><circle cx="9" cy="9" r="2"></circle><path d="M7 21v-4a2 2 0 0 1 2-2h4"></path><circle cx="15" cy="15" r="2"></circle></svg>';
+      case 'Figma':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"></path><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"></path><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"></path><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"></path><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"></path></svg>';
+      case 'Brush':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"></path><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"></path></svg>';
+      case 'AppWindow':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 4v4"></path><path d="M2 8h20"></path><path d="M6 4v4"></path></svg>';
+      case 'Server':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg>';
+      case 'Github':
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>';
       default:
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>';
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>`;
     }
   }
 

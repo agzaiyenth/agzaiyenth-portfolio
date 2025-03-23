@@ -40,9 +40,6 @@ const Index = () => {
             <p className="text-muted-foreground text-sm">
               &copy; {new Date().getFullYear()} Agzaiyenth Ganaraj. All rights reserved.
             </p>
-            <p className="text-muted-foreground text-sm mt-2 md:mt-0">
-              Designed with ✨ and code
-            </p>
           </div>
         </div>
       </footer>

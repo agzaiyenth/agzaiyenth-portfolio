@@ -4,7 +4,6 @@ import SkillBadge from '../ui/SkillBadge';
 import GlassCard from '../ui/GlassCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TechGlobe from '../ui/TechGlobe';
-import { ScrollArea } from '../ui/scroll-area';
 
 const SkillsSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -14,7 +13,6 @@ const SkillsSection: React.FC = () => {
   const frameworks = ['Spring Boot', 'React', 'Next.js', 'Jetpack Compose'];
   const databases = ['MySQL'];
   const tools = ['Figma', 'Adobe PS', 'GitHub Actions', 'Docker', 'Azure'];
-  const design = ['Figma', 'Canva', 'Adobe PS'];
 
   useEffect(() => {
     if (isMobile || !containerRef.current) return;
