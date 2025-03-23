@@ -125,9 +125,9 @@
     @apply bg-accent;
   }
 
+  /* Removed snap container height restriction */
   .snap-container {
-    scroll-snap-type: y mandatory;
-    height: 100vh;
+    scroll-snap-type: y proximity;
     overflow-y: auto;
   }
 

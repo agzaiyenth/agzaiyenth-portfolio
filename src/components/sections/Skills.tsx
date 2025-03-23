@@ -3,6 +3,8 @@ import React, { useRef, useEffect } from 'react';
 import SkillBadge from '../ui/SkillBadge';
 import GlassCard from '../ui/GlassCard';
 import { useIsMobile } from '@/hooks/use-mobile';
+import TechGlobe from '../ui/TechGlobe';
+import { ScrollArea } from '../ui/scroll-area';
 
 const SkillsSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,7 +60,7 @@ const SkillsSection: React.FC = () => {
   return (
     <section id="skills" className="py-20 min-h-screen">
       <div className="container px-4 mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <span className="inline-block px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
             Skills
           </span>
@@ -68,6 +70,12 @@ const SkillsSection: React.FC = () => {
           </p>
         </div>
 
+        {/* Interactive Tech Globe */}
+        <div className="mb-16">
+          <TechGlobe />
+        </div>
+
+        {/* Skill cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto" ref={containerRef}>
           <GlassCard className="p-8 skill-card transition-all duration-300" blur="lg">
             <h3 className="text-xl font-bold mb-6">Languages</h3>
@@ -101,15 +109,6 @@ const SkillsSection: React.FC = () => {
             <div className="flex flex-wrap gap-3">
               {tools.map((tool) => (
                 <SkillBadge key={tool} name={tool} />
-              ))}
-            </div>
-          </GlassCard>
-
-          <GlassCard className="p-8 skill-card transition-all duration-300 md:col-span-2" blur="lg">
-            <h3 className="text-xl font-bold mb-6">Design</h3>
-            <div className="flex flex-wrap gap-3">
-              {design.map((designTool) => (
-                <SkillBadge key={designTool} name={designTool} />
               ))}
             </div>
           </GlassCard>
