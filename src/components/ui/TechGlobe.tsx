@@ -24,6 +24,7 @@ interface TechIcon {
   position: [number, number, number];
   element?: HTMLDivElement;
   position3D?: THREE.Vector3;
+  connections?: string[]; // Names of technologies this one connects to
 }
 
 const TechGlobe: React.FC = () => {
@@ -33,21 +34,95 @@ const TechGlobe: React.FC = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const iconsContainerRef = useRef<HTMLDivElement>(null);
+  const linesRef = useRef<THREE.Line[]>([]);
+  const globeMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Tech stack data
+  // Tech stack data with connections
   const techIcons: TechIcon[] = [
-    { name: 'React', icon: <Code size={28} />, color: '#61DAFB', position: [0.8, 0.2, 0.1] },
-    { name: 'Java', icon: <FileJson size={28} />, color: '#f89820', position: [-0.7, 0.4, 0.3] },
-    { name: 'TypeScript', icon: <Box size={28} />, color: '#3178C6', position: [0.2, 0.8, 0.4] },
-    { name: 'Python', icon: <GanttChart size={28} />, color: '#306998', position: [-0.5, -0.5, 0.6] },
-    { name: 'Kotlin', icon: <CircuitBoard size={28} />, color: '#7F52FF', position: [0.5, -0.6, 0.2] },
-    { name: 'MySQL', icon: <Database size={28} />, color: '#00758F', position: [-0.3, 0.7, -0.4] },
-    { name: 'Spring', icon: <Layers size={28} />, color: '#6DB33F', position: [0.6, -0.2, -0.7] },
-    { name: 'Next.js', icon: <AppWindow size={28} />, color: '#ffffff', position: [-0.8, -0.1, -0.4] },
-    { name: 'Figma', icon: <Figma size={28} />, color: '#F24E1E', position: [0.1, -0.8, -0.5] },
-    { name: 'GitHub', icon: <Github size={28} />, color: '#ffffff', position: [-0.2, -0.3, 0.9] },
-    { name: 'Docker', icon: <Server size={28} />, color: '#2496ED', position: [0.3, 0.3, -0.9] },
-    { name: 'Adobe PS', icon: <Brush size={28} />, color: '#31A8FF', position: [-0.9, 0.1, 0.1] },
+    { 
+      name: 'React', 
+      icon: <Code size={28} />, 
+      color: '#61DAFB', 
+      position: [0.8, 0.2, 0.1],
+      connections: ['TypeScript', 'Next.js', 'GitHub']
+    },
+    { 
+      name: 'Java', 
+      icon: <FileJson size={28} />, 
+      color: '#f89820', 
+      position: [-0.7, 0.4, 0.3],
+      connections: ['Spring', 'Kotlin', 'MySQL'] 
+    },
+    { 
+      name: 'TypeScript', 
+      icon: <Box size={28} />, 
+      color: '#3178C6', 
+      position: [0.2, 0.8, 0.4],
+      connections: ['React', 'Next.js'] 
+    },
+    { 
+      name: 'Python', 
+      icon: <GanttChart size={28} />, 
+      color: '#306998', 
+      position: [-0.5, -0.5, 0.6],
+      connections: ['Docker', 'MySQL', 'GitHub'] 
+    },
+    { 
+      name: 'Kotlin', 
+      icon: <CircuitBoard size={28} />, 
+      color: '#7F52FF', 
+      position: [0.5, -0.6, 0.2],
+      connections: ['Java', 'Spring'] 
+    },
+    { 
+      name: 'MySQL', 
+      icon: <Database size={28} />, 
+      color: '#00758F', 
+      position: [-0.3, 0.7, -0.4],
+      connections: ['Java', 'Python'] 
+    },
+    { 
+      name: 'Spring', 
+      icon: <Layers size={28} />, 
+      color: '#6DB33F', 
+      position: [0.6, -0.2, -0.7],
+      connections: ['Java', 'Kotlin'] 
+    },
+    { 
+      name: 'Next.js', 
+      icon: <AppWindow size={28} />, 
+      color: '#ffffff', 
+      position: [-0.8, -0.1, -0.4],
+      connections: ['React', 'TypeScript'] 
+    },
+    { 
+      name: 'Figma', 
+      icon: <Figma size={28} />, 
+      color: '#F24E1E', 
+      position: [0.1, -0.8, -0.5],
+      connections: ['Adobe PS'] 
+    },
+    { 
+      name: 'GitHub', 
+      icon: <Github size={28} />, 
+      color: '#ffffff', 
+      position: [-0.2, -0.3, 0.9],
+      connections: ['React', 'Python', 'Docker'] 
+    },
+    { 
+      name: 'Docker', 
+      icon: <Server size={28} />, 
+      color: '#2496ED', 
+      position: [0.3, 0.3, -0.9],
+      connections: ['Python', 'GitHub'] 
+    },
+    { 
+      name: 'Adobe PS', 
+      icon: <Brush size={28} />, 
+      color: '#31A8FF', 
+      position: [-0.9, 0.1, 0.1],
+      connections: ['Figma'] 
+    },
   ];
 
   useEffect(() => {
@@ -73,15 +148,15 @@ const TechGlobe: React.FC = () => {
     globeRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Create a stylized globe instead of realistic earth
-    const globeGeometry = new THREE.SphereGeometry(0.9, 32, 32);
+    // Create a stylized globe with more lines
+    const globeGeometry = new THREE.SphereGeometry(0.9, 64, 64); // More segments for smoother look
     
-    // Create a custom shader material for a modern, tech-style globe
+    // Create a custom shader material for a modern, tech-style globe with more grid lines
     const globeMaterial = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color1: { value: new THREE.Color('#1a1a2e') },
-        color2: { value: new THREE.Color('#3b3b98') }
+        color1: { value: new THREE.Color('#0a192f') },
+        color2: { value: new THREE.Color('#3b82f6') }
       },
       vertexShader: `
         varying vec2 vUv;
@@ -100,43 +175,77 @@ const TechGlobe: React.FC = () => {
         varying vec2 vUv;
         varying vec3 vPosition;
         
-        float hexPattern(vec2 p, float scale) {
-          vec2 grid = mod(p * scale, 1.0);
-          return step(abs(grid.x - 0.5) + abs(grid.y - 0.5), 0.7);
+        // Improved grid pattern function
+        float gridPattern(vec2 p, float scale, float lineWidth) {
+          vec2 grid = abs(fract(p * scale) - 0.5);
+          float lines = step(0.5 - lineWidth, max(grid.x, grid.y));
+          return lines;
         }
         
         void main() {
           // Calculate normalized position
           vec3 pos = normalize(vPosition);
           
-          // Hexagonal grid pattern
-          float pattern = hexPattern(vUv, 15.0);
+          // Multiple grid patterns with different scales and orientations
+          float gridSmall = gridPattern(vUv, 30.0, 0.02);
+          float gridMedium = gridPattern(vUv, 15.0, 0.03);
           
-          // Grid lines
-          float lon = atan(pos.z, pos.x);
+          // Latitude/longitude lines
           float lat = asin(pos.y);
+          float lon = atan(pos.z, pos.x);
           
-          float gridLines = 0.0;
+          float latLines = 0.0;
+          float lonLines = 0.0;
+          
+          // Create more latitude lines
           for (float i = 0.0; i < 20.0; i += 1.0) {
-            float lineWidth = 0.03;
+            float lineWidth = 0.02;
             float angle = i * 3.14159 / 10.0;
-            gridLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lon + time * 0.05, 3.14159 / 5.0) - 3.14159 / 10.0))) * 0.5;
-            gridLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lat + time * 0.05, 3.14159 / 5.0) - 3.14159 / 10.0))) * 0.5;
+            latLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lat + time * 0.01, 3.14159 / 10.0) - 3.14159 / 20.0))) * 0.5;
+            lonLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lon + time * 0.01, 3.14159 / 10.0) - 3.14159 / 20.0))) * 0.5;
           }
           
-          // Pulsing glow effect
-          float pulse = 0.5 + 0.5 * sin(time);
+          // Add more dynamic longitude lines
+          for (float i = 0.0; i < 24.0; i += 1.0) {
+            float lineWidth = 0.015;
+            float angle = i * 3.14159 / 12.0;
+            lonLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lon + time * 0.02, 3.14159 / 12.0) - 3.14159 / 24.0))) * 0.3;
+          }
           
-          // Combine effects
-          vec3 finalColor = mix(color1, color2, vUv.y);
-          finalColor = mix(finalColor, vec3(0.1, 0.5, 1.0), gridLines * 0.3);
-          finalColor += vec3(0.1, 0.3, 0.9) * pulse * 0.1;
+          // Pulse waves emanating from points
+          float pulse = 0.0;
+          for (float i = 0.0; i < 5.0; i++) {
+            vec3 pulseCenter = vec3(
+              sin(time * 0.2 + i * 1.0), 
+              cos(time * 0.3 + i * 2.0), 
+              sin(time * 0.1 + i * 3.0)
+            );
+            pulseCenter = normalize(pulseCenter);
+            
+            float dist = distance(pos, pulseCenter);
+            float wavePhase = fract(time * 0.2 + i * 0.1);
+            float waveWidth = 0.05;
+            pulse += (1.0 - smoothstep(0.0, waveWidth, abs(dist - wavePhase))) * 0.3;
+          }
+          
+          // Combine all patterns
+          float pattern = gridSmall * 0.3 + gridMedium * 0.3 + latLines + lonLines + pulse;
+          
+          // Base colors with gradient
+          vec3 baseColor = mix(color1, color2, vUv.y * 0.5 + 0.25);
+          
+          // Add glowing grid lines
+          vec3 lineColor = vec3(0.3, 0.7, 1.0);
+          vec3 finalColor = mix(baseColor, lineColor, pattern * 0.7);
           
           // Edge glow
           float fresnel = pow(1.0 - abs(dot(normalize(vPosition), vec3(0.0, 0.0, 1.0))), 2.0);
-          finalColor += vec3(0.3, 0.6, 1.0) * fresnel * 0.6;
+          finalColor += vec3(0.4, 0.7, 1.0) * fresnel * 0.7;
           
-          gl_FragColor = vec4(finalColor, 0.95);
+          // Slightly transparent base
+          float alpha = 0.92 + pattern * 0.08;
+          
+          gl_FragColor = vec4(finalColor, alpha);
         }
       `,
       transparent: true
@@ -144,12 +253,13 @@ const TechGlobe: React.FC = () => {
     
     const globeMesh = new THREE.Mesh(globeGeometry, globeMaterial);
     scene.add(globeMesh);
+    globeMeshRef.current = globeMesh;
 
     // Add a subtle glow effect
-    const glowGeometry = new THREE.SphereGeometry(0.95, 32, 32);
+    const glowGeometry = new THREE.SphereGeometry(0.95, 64, 64);
     const glowMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        glowColor: { value: new THREE.Color(0x4080ff) },
+        glowColor: { value: new THREE.Color(0x3b82f6) },
       },
       vertexShader: `
         varying vec3 vNormal;
@@ -162,8 +272,8 @@ const TechGlobe: React.FC = () => {
         uniform vec3 glowColor;
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 3.0);
-          gl_FragColor = vec4(glowColor, intensity * 0.5);
+          float intensity = pow(0.7 - dot(vNormal, vec3(0, 0, 1.0)), 3.0);
+          gl_FragColor = vec4(glowColor, intensity * 0.6);
         }
       `,
       side: THREE.BackSide,
@@ -212,6 +322,9 @@ const TechGlobe: React.FC = () => {
         tech.element = iconElement;
       }
     });
+
+    // Create connection lines between technologies
+    createConnectionLines(scene, techIcons);
 
     // Animation function
     let rotationSpeed = 0.001;
@@ -274,6 +387,9 @@ const TechGlobe: React.FC = () => {
         }
       });
       
+      // Update connection lines
+      updateConnectionLines(globeMesh);
+      
       renderer.render(scene, camera);
       animationId = requestAnimationFrame(animate);
     };
@@ -329,8 +445,67 @@ const TechGlobe: React.FC = () => {
           iconsContainerRef.current.removeChild(tech.element);
         }
       });
+      // Remove connection lines
+      linesRef.current.forEach(line => {
+        scene.remove(line);
+      });
     };
   }, []);
+
+  // Function to create connection lines between technologies
+  const createConnectionLines = (scene: THREE.Scene, techIcons: TechIcon[]) => {
+    const linesMaterial = new THREE.LineBasicMaterial({
+      color: 0x4080ff,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending
+    });
+
+    techIcons.forEach(tech => {
+      if (tech.connections && tech.position3D) {
+        tech.connections.forEach(connectedTechName => {
+          const connectedTech = techIcons.find(t => t.name === connectedTechName);
+          
+          if (connectedTech && connectedTech.position3D && tech.position3D) {
+            // Create a curved path for the connection
+            const startPoint = tech.position3D.clone().multiplyScalar(1.05);
+            const endPoint = connectedTech.position3D.clone().multiplyScalar(1.05);
+            
+            // Calculate a control point for the curve (push it outward from the globe center)
+            const midPoint = new THREE.Vector3().addVectors(startPoint, endPoint).divideScalar(2);
+            midPoint.normalize().multiplyScalar(1.3); // Push outward
+            
+            // Create a quadratic bezier curve
+            const curve = new THREE.QuadraticBezierCurve3(
+              startPoint,
+              midPoint,
+              endPoint
+            );
+            
+            // Create the curve geometry
+            const points = curve.getPoints(50);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            
+            // Create the line
+            const line = new THREE.Line(geometry, linesMaterial);
+            scene.add(line);
+            linesRef.current.push(line);
+          }
+        });
+      }
+    });
+  };
+
+  // Function to update connection lines with globe rotation
+  const updateConnectionLines = (globeMesh: THREE.Mesh) => {
+    if (!linesRef.current.length) return;
+    
+    linesRef.current.forEach(line => {
+      line.rotation.y = globeMesh.rotation.y;
+      line.rotation.x = globeMesh.rotation.x;
+      line.rotation.z = globeMesh.rotation.z;
+    });
+  };
 
   // Helper function to convert React elements to strings
   function renderToString(element: React.ReactNode): string {

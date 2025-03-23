@@ -16,10 +16,17 @@ const Index = () => {
   // Set dark mode by default
   useEffect(() => {
     document.documentElement.classList.add('dark');
+    
+    // Fix horizontal scrolling issues
+    document.body.style.overflowX = 'hidden';
+    
+    return () => {
+      document.body.style.overflowX = '';
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <Navbar />
       
       <main className="snap-container">
