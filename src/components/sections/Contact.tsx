@@ -39,7 +39,9 @@ const ContactSection: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Phone</p>
-                      <p className="font-medium">+94 76 686 7362</p>
+                      <a href="tel:+94-76-686-7362" className="font-medium hover:text-accent transition-colors">
+                        +94 76 686 7362
+                      </a>
                     </div>
                   </div>
                   
@@ -50,7 +52,12 @@ const ContactSection: React.FC = () => {
                     <div className="flex-1">
                       <p className="text-sm text-muted-foreground mb-1">Email</p>
                       <div className="flex items-center justify-between">
-                        <p className="font-medium">agzaiyenth2@gmail.com</p>
+                        <a 
+                          href="mailto:agzaiyenth2@gmail.com" 
+                          className="font-medium hover:text-accent transition-colors"
+                        >
+                          agzaiyenth2@gmail.com
+                        </a>
                         <button
                           onClick={copyEmail}
                           className="p-2 hover:bg-secondary/50 rounded-full transition-colors"
@@ -71,7 +78,7 @@ const ContactSection: React.FC = () => {
                 
                 <div className="flex flex-wrap gap-4">
                   <a
-                    href="https://www.linkedin.com/"
+                    href="https://linkedin.com/in/agzaiyenth"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
@@ -82,7 +89,7 @@ const ContactSection: React.FC = () => {
                   </a>
                   
                   <a
-                    href="https://github.com/"
+                    href="https://github.com/agzaiyenth"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
@@ -93,7 +100,7 @@ const ContactSection: React.FC = () => {
                   </a>
                   
                   <a
-                    href="https://medium.com/"
+                    href="https://medium.com/@agzaiyenth2/the-power-of-heuristic-evaluation-in-ux-how-lexi-ensures-accessibility-and-usability-1df74180a029"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent hover:bg-accent/20 transition-colors"

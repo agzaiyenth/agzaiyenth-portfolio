@@ -34,16 +34,6 @@ const Index = () => {
         <ContactSection />
       </main>
       
-      <footer className="py-6 border-t border-white/10">
-        <div className="container px-4 mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-muted-foreground text-sm">
-              &copy; {new Date().getFullYear()} Agzaiyenth Ganaraj. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-      
       <ScrollToTop />
     </div>
   );

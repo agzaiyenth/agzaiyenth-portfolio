@@ -8,7 +8,7 @@ const ProjectsSection: React.FC = () => {
       title: 'LEXi – Assistive Learning Platform',
       description: 'AI-based mobile and web platform with dyslexia detection, gamified recovery, and therapist marketplace.',
       tools: ['React Native', 'Spring Boot', 'MySQL', 'Azure'],
-      githubUrl: '#',
+      githubUrl: 'https://github.com/agzaiyenth/LEXi',
       liveUrl: '#',
       image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     },
@@ -16,14 +16,14 @@ const ProjectsSection: React.FC = () => {
       title: 'Vendora – Real-time Event Ticketing',
       description: 'A comprehensive real-time event ticketing system built with Java Spring Boot, Angular, and MySQL.',
       tools: ['Spring Boot', 'Angular', 'MySQL'],
-      githubUrl: '#',
+      githubUrl: 'https://github.com/agzaiyenth/Vendora',
       image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     },
     {
       title: 'LEXi Web – Marketing Website',
       description: 'Award-winning marketing website recognized as Best Marketing Website (SDGP Year).',
       tools: ['Next.js', 'React', 'Three.js'],
-      githubUrl: '#',
+      githubUrl: 'https://github.com/zionashirwada/LEXI-WEB',
       liveUrl: '#',
       image: 'https://images.unsplash.com/photo-1481487196290-c152efe083f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     },
@@ -31,21 +31,21 @@ const ProjectsSection: React.FC = () => {
       title: 'Dice Mobile Game',
       description: 'Kotlin and Jetpack Compose mobile game featuring Human vs. AI logic.',
       tools: ['Kotlin', 'Jetpack Compose'],
-      githubUrl: '#',
+      githubUrl: 'https://github.com/agzaiyenth/Dice-Mobile-Game',
       image: 'https://images.unsplash.com/photo-1611457194403-d3aca4cf9d11?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     },
     {
       title: 'PropQuest',
       description: 'Real estate web application for property browsing with comprehensive filters.',
       tools: ['JavaScript', 'React', 'Node.js'],
-      githubUrl: '#',
+      githubUrl: 'https://github.com/agzaiyenth/PropQuest',
       image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     },
     {
       title: 'Password Generator',
       description: 'Python CLI tool that generates unique passwords securely.',
       tools: ['Python', 'CLI'],
-      githubUrl: '#',
+      githubUrl: 'https://github.com/agzaiyenth/password-gen',
       image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     }
   ];

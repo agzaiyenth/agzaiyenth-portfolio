@@ -8,13 +8,13 @@ const PublicationsSection: React.FC = () => {
     {
       title: 'LEXi – AI-Driven Dyslexia Learning Platform',
       type: 'Research (in-progress)',
-      link: '#',
+      link: 'https://github.com/agzaiyenth/LEXi',
       imageUrl: 'https://images.unsplash.com/photo-1532619675605-1ede6c2ed2b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     },
     {
       title: 'Heuristic Evaluation in UX: Ensuring Accessibility & Usability',
       type: 'Blog',
-      link: '#',
+      link: 'https://medium.com/@agzaiyenth2/the-power-of-heuristic-evaluation-in-ux-how-lexi-ensures-accessibility-and-usability-1df74180a029',
       imageUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
     }
   ];

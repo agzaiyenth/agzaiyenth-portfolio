@@ -78,12 +78,15 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     overflow-x: hidden;
+    max-width: 100vw;
   }
 
   html {
     @apply scroll-smooth antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 }
 
@@ -138,9 +141,22 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
+    width: 100%;
   }
 }
 
 .mask {
   mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+/* Fix any potential horizontal overflow */
+.container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+section {
+  width: 100%;
+  overflow-x: hidden;
 }
