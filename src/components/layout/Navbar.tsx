@@ -13,7 +13,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'About', href: '#about' },
   { label: 'Projects', href: '#projects' },
-  { label: 'Skills', href: '#skills' },
   { label: 'Achievements', href: '#achievements' },
   { label: 'Leadership', href: '#leadership' },
   { label: 'Contact', href: '#contact' },
@@ -64,8 +63,8 @@ const Navbar: React.FC = () => {
       <nav className="glassmorphism mx-auto my-4 p-4 rounded-full max-w-5xl backdrop-blur-md transition-all duration-300 shadow-glass">
         <div className="flex items-center justify-between">
           <a href="#" className="text-xl font-bold tracking-tight flex items-center">
-            <div className="bg-gradient-to-r from-[#1a2333] to-[#0f172a] text-white p-2 rounded-lg shadow-glow-sm transform transition-all duration-300 hover:shadow-glow-md hover:scale-105">
-              <span className="text-gradient">AG</span>
+            <div className="bg-gradient-to-r from-[#0d1523] to-[#0f172a] text-white p-2 rounded-lg shadow-glow-sm transform transition-all duration-300 hover:shadow-glow-md hover:scale-105">
+              <span className="text-gradient gradient-to-r from-[#bcbcbc] to-[#0f172a] text-white">AG</span>
             </div>
           </a>
 

@@ -24,8 +24,7 @@ const Hero: React.FC = () => {
       />
       
       {/* Content */}
-      <div className="container flex flex-col md:flex-row items-center justify-between px-4 z-10">
-        <div className="flex flex-col items-center md:items-start md:max-w-2xl mb-12 md:mb-0">
+       <div className="flex flex-col items-center md:items-start md:max-w-2xl mb-12 md:mb-0">
           <span className="text-sm md:text-base font-medium tracking-wider uppercase text-accent mb-2 animate-fade-in">
             Full-Stack & AI Engineer
           </span>
@@ -37,7 +36,7 @@ const Hero: React.FC = () => {
           <h2 className="text-lg md:text-2xl text-center md:text-left text-muted-foreground max-w-3xl mb-8 animate-fade-in">
             <TypewriterText 
               texts={[
-                "Crafting Smart, Scalable, Impactful Solutions with Code ✨",
+                "Crafting Smart, Scalable, Impactful Solutions with Code",
                 "Building AI-powered applications for real-world problems",
                 "Passionate about inclusive and meaningful technology",
                 "Founder, developer, and continuous learner"
@@ -61,12 +60,7 @@ const Hero: React.FC = () => {
             </a>
           </div>
         </div>
-        
-        {/* ID Card */}
-        <div className="w-full md:w-auto">
-          <IdCard />
-        </div>
-      </div>
+     
       
       {/* Scroll indicator */}
       <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 animate-bounce">
