@@ -12,13 +12,13 @@ const IdCard: React.FC = () => {
     <div className="perspective-1000">
       <div 
         ref={cardRef} 
-        className="w-56 bg-[#1A1F2C] rounded-xl overflow-hidden shadow-glow-md border border-white/10 transition-transform duration-300 ease-out"
+        className="w-52 bg-[#1A1F2C] rounded-xl overflow-hidden shadow-glow-md border border-white/10 transition-transform duration-300 ease-out"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Card header */}
         <div className="bg-[#192231] border-b border-white/10 p-3 flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold text-white">ACCESS CARD</h3>
+            <h3 className="text-lg font-bold bg-gradient-to-r from-accent to-purple-600 bg-clip-text text-transparent animate-pulse">ACCESS CARD</h3>
             <span className="text-xs text-white/70">Full-Stack Developer</span>
           </div>
           <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center" style={{ transform: 'translateZ(20px)' }}>
@@ -29,7 +29,7 @@ const IdCard: React.FC = () => {
         {/* Card photo and info */}
         <div className="p-4 flex flex-col items-center" style={{ transform: 'translateZ(10px)' }}>
           {/* Photo with glowing border - moved slightly down with mt-2 */}
-          <div className="mt-2 mb-3 p-1 bg-gradient-to-br from-accent to-purple-500 rounded-full shadow-glow-sm">
+          <div className="mt-1 mb-3 p-1 bg-accent rounded-full shadow-glow-sm">
             <Avatar className="w-20 h-20 border-2 border-background">
               <AvatarImage src="/lovable-uploads/4aa83f49-66da-4c10-9865-617f31045e99.png" alt="Agzaiyenth" className="object-cover" />
               <AvatarFallback className="bg-accent/20 text-xl">AG</AvatarFallback>
