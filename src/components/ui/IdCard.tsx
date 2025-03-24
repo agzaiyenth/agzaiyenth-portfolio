@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Shield, Award, Star, Coffee } from 'lucide-react';
 
 const IdCard: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -89,67 +90,83 @@ const IdCard: React.FC = () => {
   
   return (
     <div className="perspective-1000">
+      {/* ID Card lanyard/strap */}
+      <div className="relative w-72 flex justify-center mb-[-15px] z-10">
+        <div className="w-24 h-6 bg-gradient-to-r from-red-600 to-red-500 rounded-t-lg"></div>
+      </div>
+      
+      {/* Lanyard string */}
+      <div className="relative w-72 flex justify-center items-center">
+        <div className="absolute top-0 w-1 h-20 bg-gradient-to-b from-red-500 to-red-700 z-20"></div>
+      </div>
+      
       <div 
         ref={cardRef} 
-        className="w-72 md:w-80 h-auto bg-[#222831]/80 backdrop-blur-md rounded-xl overflow-hidden shadow-glow-md border border-white/10 transition-transform duration-300 ease-out"
+        className="w-64 h-auto bg-[#1A1F2C] rounded-xl overflow-hidden shadow-glow-md border border-white/10 transition-transform duration-300 ease-out"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Card header */}
-        <div className="bg-gradient-to-r from-[#232d3a] to-[#192231] border-b border-white/10 p-4 flex justify-between items-center">
+        <div className="bg-[#192231] border-b border-white/10 p-3 flex justify-between items-center">
           <div>
-            <h3 className="text-xl font-bold text-gradient">ID CARD</h3>
+            <h3 className="text-lg font-bold text-white">ACCESS CARD</h3>
             <span className="text-xs text-white/70">Full-Stack Developer</span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center" style={{ transform: 'translateZ(20px)' }}>
+          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center" style={{ transform: 'translateZ(20px)' }}>
             <span className="text-accent font-bold">AG</span>
           </div>
         </div>
         
         {/* Card photo and info */}
-        <div className="p-5 flex flex-col items-center" style={{ transform: 'translateZ(10px)' }}>
+        <div className="p-4 flex flex-col items-center" style={{ transform: 'translateZ(10px)' }}>
           {/* Photo with glowing border */}
-          <div className="mb-4 p-1 bg-gradient-to-br from-accent to-purple-500 rounded-full shadow-glow-sm">
-            <Avatar className="w-28 h-28 border-2 border-background">
-              <AvatarImage src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop&q=80" alt="Agzaiyenth" />
+          <div className="mb-3 p-1 bg-gradient-to-br from-accent to-purple-500 rounded-full shadow-glow-sm">
+            <Avatar className="w-24 h-24 border-2 border-background">
+              <AvatarImage src="/lovable-uploads/4aa83f49-66da-4c10-9865-617f31045e99.png" alt="Agzaiyenth" />
               <AvatarFallback className="bg-accent/20 text-xl">AG</AvatarFallback>
             </Avatar>
           </div>
           
           {/* Name and title */}
-          <h2 className="text-xl font-bold mb-1">Agzaiyenth Ganaraj</h2>
-          <p className="text-sm text-white/70 mb-4">Software Engineer</p>
+          <h2 className="text-lg font-bold mb-1">Agzaiyenth Ganaraj</h2>
+          <p className="text-sm text-white/70 mb-3">Full-Stack AI Engineer</p>
           
-          {/* ID number and other identifiers */}
-          <div className="w-full grid grid-cols-2 gap-3 mb-4 text-sm">
-            <div className="bg-white/5 p-2 rounded-lg">
-              <span className="text-xs text-white/50 block">ID Number</span>
-              <span className="font-mono text-white/90">FSD-7686-7362</span>
+          {/* Experience and specializations */}
+          <div className="w-full space-y-2 mb-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Shield size={16} className="text-blue-400" />
+              <span className="text-white/90">PsyCode Innovations</span>
             </div>
-            <div className="bg-white/5 p-2 rounded-lg">
-              <span className="text-xs text-white/50 block">Issue Date</span>
-              <span className="font-mono text-white/90">2023-08-15</span>
+            <div className="flex items-center gap-2 text-sm">
+              <Award size={16} className="text-amber-400" />
+              <span className="text-white/90">LEXi Founder</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Star size={16} className="text-green-400" />
+              <span className="text-white/90">AI Solutions Specialist</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Coffee size={16} className="text-purple-400" />
+              <span className="text-white/90">Java & TypeScript Expert</span>
             </div>
           </div>
           
           {/* Skills badges */}
-          <div className="flex flex-wrap gap-2 justify-center mb-4">
-            <Badge variant="outline" className="bg-accent/10">React</Badge>
-            <Badge variant="outline" className="bg-accent/10">TypeScript</Badge>
-            <Badge variant="outline" className="bg-accent/10">Java</Badge>
-            <Badge variant="outline" className="bg-accent/10">AI</Badge>
+          <div className="flex flex-wrap gap-1.5 justify-center mb-3">
+            <Badge variant="outline" className="bg-accent/10 text-xs">React</Badge>
+            <Badge variant="outline" className="bg-accent/10 text-xs">TypeScript</Badge>
+            <Badge variant="outline" className="bg-accent/10 text-xs">Java</Badge>
+            <Badge variant="outline" className="bg-accent/10 text-xs">AI</Badge>
           </div>
           
-          {/* Barcode-like element */}
-          <div className="w-full h-12 bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded flex items-center justify-center overflow-hidden">
-            <div className="flex h-full">
-              {Array.from({ length: 30 }).map((_, i) => (
+          {/* QR code-like element */}
+          <div className="w-16 h-16 bg-white/10 rounded-md p-1">
+            <div className="w-full h-full grid grid-cols-4 grid-rows-4 gap-0.5">
+              {Array.from({ length: 16 }).map((_, i) => (
                 <div 
-                  key={i}
-                  className="h-full w-1 mx-0.5"
+                  key={i} 
+                  className="rounded-sm" 
                   style={{ 
-                    backgroundColor: i % 3 === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.2)',
-                    height: `${70 + Math.random() * 30}%`,
-                    marginTop: 'auto'
+                    backgroundColor: Math.random() > 0.6 ? 'rgba(255,255,255,0.8)' : 'transparent'
                   }}
                 />
               ))}
@@ -157,19 +174,8 @@ const IdCard: React.FC = () => {
           </div>
         </div>
         
-        {/* Card footer */}
-        <div className="bg-gradient-to-r from-[#192231] to-[#232d3a] p-3 text-center text-sm text-white/50 border-t border-white/10">
-          <p>Valid indefinitely</p>
-        </div>
-        
         {/* Card hole */}
-        <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-background border border-white/20" style={{ transform: 'translateZ(15px)' }}></div>
-        
-        {/* Card string */}
-        <div 
-          className="absolute top-0 right-7 w-1 h-60 bg-gradient-to-b from-accent/80 to-purple-500/80"
-          style={{ transform: 'translateZ(25px) rotate(-5deg)' }}
-        ></div>
+        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-background/30 border border-white/20" style={{ transform: 'translateZ(15px)' }}></div>
       </div>
     </div>
   );
