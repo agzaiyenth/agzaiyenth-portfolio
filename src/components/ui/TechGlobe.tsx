@@ -8,13 +8,12 @@ import {
   Database,
   Layers,
   GanttChart,
-  Brush,
-  Figma,
   CircuitBoard,
-  PaintBucket,
+  Figma,
   AppWindow,
   Server,
-  Github
+  Github,
+  Cloud
 } from 'lucide-react';
 
 interface TechIcon {
@@ -25,6 +24,7 @@ interface TechIcon {
   element?: HTMLDivElement;
   position3D?: THREE.Vector3;
   connections?: string[]; // Names of technologies this one connects to
+  category: 'language' | 'framework' | 'database' | 'tool';
 }
 
 const TechGlobe: React.FC = () => {
@@ -37,91 +37,103 @@ const TechGlobe: React.FC = () => {
   const linesRef = useRef<THREE.Line[]>([]);
   const globeMeshRef = useRef<THREE.Mesh | null>(null);
 
-  // Tech stack data with connections
+  // Tech stack data with connections and categories
   const techIcons: TechIcon[] = [
     { 
       name: 'React', 
       icon: <Code size={28} />, 
       color: '#61DAFB', 
       position: [0.8, 0.2, 0.1],
-      connections: ['TypeScript', 'Next.js', 'GitHub']
+      connections: ['TypeScript', 'Next.js', 'GitHub'],
+      category: 'framework'
     },
     { 
       name: 'Java', 
       icon: <FileJson size={28} />, 
       color: '#f89820', 
       position: [-0.7, 0.4, 0.3],
-      connections: ['Spring', 'Kotlin', 'MySQL'] 
+      connections: ['Spring', 'Kotlin', 'MySQL'],
+      category: 'language'
     },
     { 
       name: 'TypeScript', 
       icon: <Box size={28} />, 
       color: '#3178C6', 
       position: [0.2, 0.8, 0.4],
-      connections: ['React', 'Next.js'] 
+      connections: ['React', 'Next.js'],
+      category: 'language'
     },
     { 
       name: 'Python', 
       icon: <GanttChart size={28} />, 
       color: '#306998', 
       position: [-0.5, -0.5, 0.6],
-      connections: ['Docker', 'MySQL', 'GitHub'] 
+      connections: ['Docker', 'MySQL', 'GitHub'],
+      category: 'language'
     },
     { 
       name: 'Kotlin', 
       icon: <CircuitBoard size={28} />, 
       color: '#7F52FF', 
       position: [0.5, -0.6, 0.2],
-      connections: ['Java', 'Spring'] 
+      connections: ['Java', 'Spring'],
+      category: 'language'
     },
     { 
       name: 'MySQL', 
       icon: <Database size={28} />, 
       color: '#00758F', 
       position: [-0.3, 0.7, -0.4],
-      connections: ['Java', 'Python'] 
+      connections: ['Java', 'Python'],
+      category: 'database'
     },
     { 
       name: 'Spring', 
       icon: <Layers size={28} />, 
       color: '#6DB33F', 
       position: [0.6, -0.2, -0.7],
-      connections: ['Java', 'Kotlin'] 
+      connections: ['Java', 'Kotlin'],
+      category: 'framework'
     },
     { 
       name: 'Next.js', 
       icon: <AppWindow size={28} />, 
       color: '#ffffff', 
       position: [-0.8, -0.1, -0.4],
-      connections: ['React', 'TypeScript'] 
+      connections: ['React', 'TypeScript'],
+      category: 'framework'
     },
     { 
       name: 'Figma', 
       icon: <Figma size={28} />, 
       color: '#F24E1E', 
       position: [0.1, -0.8, -0.5],
-      connections: ['Adobe PS'] 
+      connections: ['Adobe PS'],
+      category: 'tool'
     },
     { 
       name: 'GitHub', 
       icon: <Github size={28} />, 
       color: '#ffffff', 
       position: [-0.2, -0.3, 0.9],
-      connections: ['React', 'Python', 'Docker'] 
+      connections: ['React', 'Python', 'Docker'],
+      category: 'tool'
     },
     { 
       name: 'Docker', 
       icon: <Server size={28} />, 
       color: '#2496ED', 
       position: [0.3, 0.3, -0.9],
-      connections: ['Python', 'GitHub'] 
+      connections: ['Python', 'GitHub'],
+      category: 'tool'
     },
     { 
       name: 'Adobe PS', 
-      icon: <Brush size={28} />, 
+      icon: <Cloud size={28} />, 
       color: '#31A8FF', 
       position: [-0.9, 0.1, 0.1],
-      connections: ['Figma'] 
+      connections: ['Figma'],
+      category: 'tool'
     },
   ];
 
@@ -187,8 +199,9 @@ const TechGlobe: React.FC = () => {
           vec3 pos = normalize(vPosition);
           
           // Multiple grid patterns with different scales and orientations
-          float gridSmall = gridPattern(vUv, 30.0, 0.02);
-          float gridMedium = gridPattern(vUv, 15.0, 0.03);
+          float gridSmall = gridPattern(vUv, 50.0, 0.01);  // More dense grid
+          float gridMedium = gridPattern(vUv, 25.0, 0.02); // Medium density grid
+          float gridLarge = gridPattern(vUv, 12.0, 0.03);  // Larger grid lines
           
           // Latitude/longitude lines
           float lat = asin(pos.y);
@@ -197,24 +210,23 @@ const TechGlobe: React.FC = () => {
           float latLines = 0.0;
           float lonLines = 0.0;
           
-          // Create more latitude lines
-          for (float i = 0.0; i < 20.0; i += 1.0) {
-            float lineWidth = 0.02;
-            float angle = i * 3.14159 / 10.0;
-            latLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lat + time * 0.01, 3.14159 / 10.0) - 3.14159 / 20.0))) * 0.5;
-            lonLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lon + time * 0.01, 3.14159 / 10.0) - 3.14159 / 20.0))) * 0.5;
-          }
-          
-          // Add more dynamic longitude lines
-          for (float i = 0.0; i < 24.0; i += 1.0) {
+          // Create more latitude lines (30 instead of 20)
+          for (float i = 0.0; i < 30.0; i += 1.0) {
             float lineWidth = 0.015;
-            float angle = i * 3.14159 / 12.0;
-            lonLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lon + time * 0.02, 3.14159 / 12.0) - 3.14159 / 24.0))) * 0.3;
+            float angle = i * 3.14159 / 15.0;
+            latLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lat + time * 0.01, 3.14159 / 15.0) - 3.14159 / 30.0))) * 0.5;
           }
           
-          // Pulse waves emanating from points
+          // Add more dynamic longitude lines (36 instead of 24)
+          for (float i = 0.0; i < 36.0; i += 1.0) {
+            float lineWidth = 0.01;
+            float angle = i * 3.14159 / 18.0;
+            lonLines += (1.0 - smoothstep(0.0, lineWidth, abs(mod(lon + time * 0.02, 3.14159 / 18.0) - 3.14159 / 36.0))) * 0.3;
+          }
+          
+          // Pulse waves emanating from points (more waves)
           float pulse = 0.0;
-          for (float i = 0.0; i < 5.0; i++) {
+          for (float i = 0.0; i < 8.0; i++) {  // Increased from 5 to 8
             vec3 pulseCenter = vec3(
               sin(time * 0.2 + i * 1.0), 
               cos(time * 0.3 + i * 2.0), 
@@ -224,23 +236,23 @@ const TechGlobe: React.FC = () => {
             
             float dist = distance(pos, pulseCenter);
             float wavePhase = fract(time * 0.2 + i * 0.1);
-            float waveWidth = 0.05;
+            float waveWidth = 0.04;
             pulse += (1.0 - smoothstep(0.0, waveWidth, abs(dist - wavePhase))) * 0.3;
           }
           
-          // Combine all patterns
-          float pattern = gridSmall * 0.3 + gridMedium * 0.3 + latLines + lonLines + pulse;
+          // Combine all patterns with adjusted weights
+          float pattern = gridSmall * 0.2 + gridMedium * 0.25 + gridLarge * 0.3 + latLines * 1.2 + lonLines * 1.2 + pulse * 0.8;
           
           // Base colors with gradient
           vec3 baseColor = mix(color1, color2, vUv.y * 0.5 + 0.25);
           
-          // Add glowing grid lines
-          vec3 lineColor = vec3(0.3, 0.7, 1.0);
-          vec3 finalColor = mix(baseColor, lineColor, pattern * 0.7);
+          // Add glowing grid lines with more intensity
+          vec3 lineColor = vec3(0.4, 0.8, 1.0);  // Brighter blue
+          vec3 finalColor = mix(baseColor, lineColor, pattern * 0.8);  // Increased from 0.7 to 0.8
           
           // Edge glow
           float fresnel = pow(1.0 - abs(dot(normalize(vPosition), vec3(0.0, 0.0, 1.0))), 2.0);
-          finalColor += vec3(0.4, 0.7, 1.0) * fresnel * 0.7;
+          finalColor += vec3(0.5, 0.8, 1.0) * fresnel * 0.8;  // Increased from 0.7 to 0.8
           
           // Slightly transparent base
           float alpha = 0.92 + pattern * 0.08;
@@ -273,7 +285,7 @@ const TechGlobe: React.FC = () => {
         varying vec3 vNormal;
         void main() {
           float intensity = pow(0.7 - dot(vNormal, vec3(0, 0, 1.0)), 3.0);
-          gl_FragColor = vec4(glowColor, intensity * 0.6);
+          gl_FragColor = vec4(glowColor, intensity * 0.8);  // Increased from 0.6 to 0.8
         }
       `,
       side: THREE.BackSide,
@@ -286,35 +298,38 @@ const TechGlobe: React.FC = () => {
     scene.add(glowMesh);
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x333333);
+    const ambientLight = new THREE.AmbientLight(0x444444);  // Brighter ambient light
     scene.add(ambientLight);
 
     // Add directional light
-    const directionalLight = new THREE.DirectionalLight(0x4080ff, 1);
+    const directionalLight = new THREE.DirectionalLight(0x4080ff, 1.2);  // Increased intensity
     directionalLight.position.set(5, 3, 5);
     scene.add(directionalLight);
 
     // Add a subtle point light
-    const pointLight = new THREE.PointLight(0x3060ff, 2, 10);
+    const pointLight = new THREE.PointLight(0x3060ff, 2.5, 10);  // Increased intensity
     pointLight.position.set(2, 2, 2);
     scene.add(pointLight);
 
     // Position the 2D technology icons around the 3D globe
     techIcons.forEach((tech, index) => {
       const iconPos = new THREE.Vector3(tech.position[0], tech.position[1], tech.position[2]);
-      iconPos.normalize().multiplyScalar(1.05); // Position closer to the globe surface
+      iconPos.normalize().multiplyScalar(1.04); // Position closer to the globe surface
       tech.position3D = iconPos;
       
       if (iconsContainerRef.current) {
         const iconElement = document.createElement('div');
-        iconElement.className = 'absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500';
+        iconElement.className = 'absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300';
         iconElement.innerHTML = `
-          <div class="flex flex-col items-center">
-            <div class="p-2 rounded-full bg-accent/5 backdrop-blur-md border border-white/20 shadow-glow-sm" style="color: ${tech.color}">
+          <div class="flex flex-col items-center group">
+            <div class="p-2.5 rounded-full bg-background/80 backdrop-blur-md border border-accent/30 shadow-glow-sm transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-glow-md" style="color: ${tech.color}">
               ${renderToString(tech.icon)}
             </div>
-            <span class="mt-1 text-xs font-medium bg-background/80 px-2 py-0.5 rounded-full backdrop-blur-md text-white/90 border border-white/10">
+            <span class="mt-1 text-xs font-medium bg-background/80 px-2.5 py-1 rounded-full backdrop-blur-md text-white/95 border border-accent/20 transition-all duration-300 group-hover:bg-accent/20">
               ${tech.name}
+            </span>
+            <span class="hidden opacity-0 mt-0.5 text-[0.65rem] px-1.5 py-0.5 rounded-full bg-accent/20 text-white/80 border border-accent/10 group-hover:opacity-100 group-hover:block transition-all duration-300">
+              ${tech.category}
             </span>
           </div>
         `;
@@ -457,7 +472,7 @@ const TechGlobe: React.FC = () => {
     const linesMaterial = new THREE.LineBasicMaterial({
       color: 0x4080ff,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending
     });
 
@@ -468,12 +483,12 @@ const TechGlobe: React.FC = () => {
           
           if (connectedTech && connectedTech.position3D && tech.position3D) {
             // Create a curved path for the connection
-            const startPoint = tech.position3D.clone().multiplyScalar(1.05);
-            const endPoint = connectedTech.position3D.clone().multiplyScalar(1.05);
+            const startPoint = tech.position3D.clone().multiplyScalar(1.04);
+            const endPoint = connectedTech.position3D.clone().multiplyScalar(1.04);
             
             // Calculate a control point for the curve (push it outward from the globe center)
             const midPoint = new THREE.Vector3().addVectors(startPoint, endPoint).divideScalar(2);
-            midPoint.normalize().multiplyScalar(1.3); // Push outward
+            midPoint.normalize().multiplyScalar(1.25); // Push outward
             
             // Create a quadratic bezier curve
             const curve = new THREE.QuadraticBezierCurve3(
@@ -482,8 +497,8 @@ const TechGlobe: React.FC = () => {
               endPoint
             );
             
-            // Create the curve geometry
-            const points = curve.getPoints(50);
+            // Create the curve geometry with more points for smoother curves
+            const points = curve.getPoints(60);
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
             
             // Create the line
@@ -536,14 +551,14 @@ const TechGlobe: React.FC = () => {
           return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M11 9h4a2 2 0 0 0 2-2V3"></path><circle cx="9" cy="9" r="2"></circle><path d="M7 21v-4a2 2 0 0 1 2-2h4"></path><circle cx="15" cy="15" r="2"></circle></svg>';
         case 'Figma':
           return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"></path><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"></path><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"></path><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"></path><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"></path></svg>';
-        case 'Brush':
-          return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"></path><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"></path></svg>';
         case 'AppWindow':
           return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 4v4"></path><path d="M2 8h20"></path><path d="M6 4v4"></path></svg>';
         case 'Server':
           return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg>';
         case 'Github':
           return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>';
+        case 'Cloud':
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>';
         default:
           return `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>`;
       }
@@ -552,12 +567,34 @@ const TechGlobe: React.FC = () => {
   }
 
   return (
-    <div 
-      ref={containerRef} 
-      className="relative w-full aspect-square max-w-xl mx-auto cursor-pointer"
-    >
-      <div ref={globeRef} className="w-full h-full"></div>
-      <div ref={iconsContainerRef} className="absolute inset-0 pointer-events-none"></div>
+    <div className="relative">
+      <div 
+        ref={containerRef} 
+        className="relative w-full aspect-square max-w-2xl mx-auto cursor-pointer"
+      >
+        <div ref={globeRef} className="w-full h-full"></div>
+        <div ref={iconsContainerRef} className="absolute inset-0 pointer-events-none"></div>
+      </div>
+      
+      {/* Tech categories legend */}
+      <div className="flex flex-wrap justify-center gap-3 mt-6">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 backdrop-blur-sm rounded-full border border-accent/10">
+          <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+          <span className="text-sm font-medium">Languages</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 backdrop-blur-sm rounded-full border border-accent/10">
+          <span className="w-3 h-3 rounded-full bg-green-500"></span>
+          <span className="text-sm font-medium">Frameworks</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 backdrop-blur-sm rounded-full border border-accent/10">
+          <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+          <span className="text-sm font-medium">Databases</span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/30 backdrop-blur-sm rounded-full border border-accent/10">
+          <span className="w-3 h-3 rounded-full bg-purple-500"></span>
+          <span className="text-sm font-medium">Tools</span>
+        </div>
+      </div>
     </div>
   );
 };

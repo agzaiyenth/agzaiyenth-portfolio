@@ -143,6 +143,11 @@
     align-items: center;
     width: 100%;
   }
+
+  /* 3D perspective effect */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
 }
 
 .mask {

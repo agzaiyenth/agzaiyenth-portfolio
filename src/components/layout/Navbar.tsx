@@ -63,8 +63,10 @@ const Navbar: React.FC = () => {
 
       <nav className="glassmorphism mx-auto my-4 p-4 rounded-full max-w-5xl backdrop-blur-md transition-all duration-300 shadow-glass">
         <div className="flex items-center justify-between">
-          <a href="#" className="text-xl font-bold tracking-tight text-gradient">
-            AG
+          <a href="#" className="text-xl font-bold tracking-tight flex items-center">
+            <div className="bg-gradient-to-r from-[#1a2333] to-[#0f172a] text-white p-2 rounded-lg shadow-glow-sm transform transition-all duration-300 hover:shadow-glow-md hover:scale-105">
+              <span className="text-gradient">AG</span>
+            </div>
           </a>
 
           {/* Desktop menu */}
