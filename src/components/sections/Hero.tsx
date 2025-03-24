@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import TypewriterText from '@/components/ui/TypewriterText';
 import { ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,37 +9,6 @@ const Hero: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (heroRef.current) {
-        const { clientX, clientY } = e;
-        const { width, height } = heroRef.current.getBoundingClientRect();
-        
-        const moveX = (clientX / width - 0.5) * 20;
-        const moveY = (clientY / height - 0.5) * 20;
-        
-        const elements = heroRef.current.querySelectorAll('.parallax-element');
-        elements.forEach((el) => {
-          const htmlEl = el as HTMLElement;
-          const speedX = parseFloat(htmlEl.dataset.speedX || '1');
-          const speedY = parseFloat(htmlEl.dataset.speedY || '1');
-          
-          htmlEl.style.transform = `translate(${moveX * speedX}px, ${moveY * speedY}px)`;
-        });
-      }
-    };
-
-    if (!isMobile) {
-      window.addEventListener('mousemove', handleMouseMove);
-    }
-    
-    return () => {
-      if (!isMobile) {
-        window.removeEventListener('mousemove', handleMouseMove);
-      }
-    };
-  }, [isMobile]);
-
   return (
     <section 
       id="hero" 
@@ -48,14 +17,10 @@ const Hero: React.FC = () => {
     >
       {/* Abstract geometric shapes */}
       <div 
-        className="absolute top-1/3 -left-10 w-80 h-80 bg-accent/10 rounded-full blur-3xl parallax-element" 
-        data-speed-x="0.5" 
-        data-speed-y="0.8"
+        className="absolute top-1/3 -left-10 w-80 h-80 bg-accent/10 rounded-full blur-3xl"
       />
       <div 
-        className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl parallax-element" 
-        data-speed-x="-0.6" 
-        data-speed-y="-0.4"
+        className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
       />
       
       {/* Content */}
