@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Award, Star, Coffee } from 'lucide-react';
+import { Shield, Award, Star } from 'lucide-react';
 
 const IdCard: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -90,19 +90,27 @@ const IdCard: React.FC = () => {
   
   return (
     <div className="perspective-1000">
-      {/* ID Card lanyard/strap */}
-      <div className="relative w-72 flex justify-center mb-[-15px] z-10">
-        <div className="w-24 h-6 bg-gradient-to-r from-red-600 to-red-500 rounded-t-lg"></div>
+      {/* ID Card lanyard with more realistic strap */}
+      <div className="relative flex justify-center mb-5">
+        {/* Lanyard neck strap */}
+        <div className="absolute top-0 w-full">
+          <div className="relative mx-auto w-32">
+            {/* Top curve of lanyard */}
+            <div className="h-14 w-32 border-t-4 border-l-4 border-r-4 rounded-t-full border-red-600"></div>
+            {/* Lanyard drop to card */}
+            <div className="absolute left-0 right-0 mx-auto w-1.5 h-16 bg-gradient-to-b from-red-600 to-red-700"></div>
+          </div>
+        </div>
       </div>
       
-      {/* Lanyard string */}
-      <div className="relative w-72 flex justify-center items-center">
-        <div className="absolute top-0 w-1 h-20 bg-gradient-to-b from-red-500 to-red-700 z-20"></div>
+      {/* ID Card clip */}
+      <div className="relative w-full flex justify-center mb-[-8px] z-10">
+        <div className="w-7 h-4 bg-gradient-to-b from-slate-300 to-slate-400 rounded-sm"></div>
       </div>
       
       <div 
         ref={cardRef} 
-        className="w-64 h-auto bg-[#1A1F2C] rounded-xl overflow-hidden shadow-glow-md border border-white/10 transition-transform duration-300 ease-out"
+        className="w-60 bg-[#1A1F2C] rounded-xl overflow-hidden shadow-glow-md border border-white/10 transition-transform duration-300 ease-out"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Card header */}
@@ -118,59 +126,40 @@ const IdCard: React.FC = () => {
         
         {/* Card photo and info */}
         <div className="p-4 flex flex-col items-center" style={{ transform: 'translateZ(10px)' }}>
-          {/* Photo with glowing border */}
+          {/* Photo with glowing border - preserve aspect ratio */}
           <div className="mb-3 p-1 bg-gradient-to-br from-accent to-purple-500 rounded-full shadow-glow-sm">
-            <Avatar className="w-24 h-24 border-2 border-background">
-              <AvatarImage src="/lovable-uploads/4aa83f49-66da-4c10-9865-617f31045e99.png" alt="Agzaiyenth" />
+            <Avatar className="w-20 h-20 border-2 border-background">
+              <AvatarImage src="/lovable-uploads/4aa83f49-66da-4c10-9865-617f31045e99.png" alt="Agzaiyenth" className="object-cover" />
               <AvatarFallback className="bg-accent/20 text-xl">AG</AvatarFallback>
             </Avatar>
           </div>
           
           {/* Name and title */}
-          <h2 className="text-lg font-bold mb-1">Agzaiyenth Ganaraj</h2>
-          <p className="text-sm text-white/70 mb-3">Full-Stack AI Engineer</p>
+          <h2 className="text-base font-bold mb-1">Agzaiyenth Ganaraj</h2>
+          <p className="text-xs text-white/70 mb-3">Full-Stack Engineer</p>
           
           {/* Experience and specializations */}
-          <div className="w-full space-y-2 mb-3">
+          <div className="w-full space-y-2 mb-4">
             <div className="flex items-center gap-2 text-sm">
-              <Shield size={16} className="text-blue-400" />
-              <span className="text-white/90">PsyCode Innovations</span>
+              <Shield size={14} className="text-blue-400" />
+              <span className="text-white/90">PsyCode Labs</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <Award size={16} className="text-amber-400" />
+              <Award size={14} className="text-amber-400" />
               <span className="text-white/90">LEXi Founder</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <Star size={16} className="text-green-400" />
-              <span className="text-white/90">AI Solutions Specialist</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Coffee size={16} className="text-purple-400" />
-              <span className="text-white/90">Java & TypeScript Expert</span>
+              <Star size={14} className="text-green-400" />
+              <span className="text-white/90">TypeScript Expert</span>
             </div>
           </div>
           
           {/* Skills badges */}
-          <div className="flex flex-wrap gap-1.5 justify-center mb-3">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             <Badge variant="outline" className="bg-accent/10 text-xs">React</Badge>
             <Badge variant="outline" className="bg-accent/10 text-xs">TypeScript</Badge>
             <Badge variant="outline" className="bg-accent/10 text-xs">Java</Badge>
             <Badge variant="outline" className="bg-accent/10 text-xs">AI</Badge>
-          </div>
-          
-          {/* QR code-like element */}
-          <div className="w-16 h-16 bg-white/10 rounded-md p-1">
-            <div className="w-full h-full grid grid-cols-4 grid-rows-4 gap-0.5">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className="rounded-sm" 
-                  style={{ 
-                    backgroundColor: Math.random() > 0.6 ? 'rgba(255,255,255,0.8)' : 'transparent'
-                  }}
-                />
-              ))}
-            </div>
           </div>
         </div>
         
